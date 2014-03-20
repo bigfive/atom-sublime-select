@@ -1,0 +1,16 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  '.overlayer':
+      'Start Sublime Selecting': 'sublime-select:start'
+
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Sublime Select'
+      'submenu': [
+        { 'label': 'Start', 'command': 'sublime-select:start' }
+      ]
+    ]
+  }
+]
