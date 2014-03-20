@@ -1,14 +1,15 @@
 {
   "name": "SublimeSelect",
   "main": "./lib/sublime-select",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Enable 'sublime style' multiline selection boxes",
-  "activationEvents": ["sublime-select:start"],
+  "activationEvents": [
+    "sublime-select:start"
+  ],
   "repository": "https://github.com/bigfive/atom-sublime-select",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
