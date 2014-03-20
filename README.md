@@ -1,3 +1,5 @@
-# Sublime Select package
+# Sublime Select
 
-Enable 'sublime style' multiline selection boxes
+Enable 'Sublime style' multiline selection boxes
+
+![](https://raw.github.com/bigfive/atom-sublime-select/master/screenshot.png)
