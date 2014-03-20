@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "Enable 'sublime style' multiline selection boxes",
   "activationEvents": ["sublime-select:start"],
-  "repository": "https://github.com/atom/sublime-select",
+  "repository": "https://github.com/bigfive/atom-sublime-select",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
