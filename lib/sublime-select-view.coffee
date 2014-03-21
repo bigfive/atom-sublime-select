@@ -42,6 +42,14 @@ class SublimeSelectView extends View
 
   selectBoxAroundCursors: =>
     newRanges = []
+    editor = atom.workspace.getActiveEditor()
+    zeroColumns = @mouseStart.column is @mouseEnd.column
+
     for row in [@mouseStart.row..@mouseEnd.row]
-      newRanges.push [[row, @mouseStart.column], [row, @mouseEnd.column]]
-    atom.workspace.getActiveEditor().setSelectedBufferRanges newRanges
+      range = [[row, @mouseStart.column], [row, @mouseEnd.column]]
+
+      # Include a range if zero columns are selected
+      # or if the line has text within the selection
+      newRanges.push range if zeroColumns or editor.getTextInBufferRange(range).length > 0
+
+    editor.setSelectedBufferRanges newRanges
