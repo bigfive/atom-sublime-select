@@ -1,4 +1,4 @@
-# Sublime Style: Column Selection
+# Sublime Style Column Selection
 
 Enable Sublime style 'Column Selection'.
 
