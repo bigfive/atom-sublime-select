@@ -1,8 +1,8 @@
 {
-  "name": "SublimeSelect",
+  "name": "Sublime Style: Column Selection",
   "main": "./lib/sublime-select",
   "version": "0.3.0",
-  "description": "Enable 'sublime style' multiline selection boxes",
+  "description": "Enable Sublime style 'Column Selection'. Also similar to Texmate's 'Multiple Carets', or BBEdit's 'Block Select'",
   "activationEvents": [],
   "repository": "https://github.com/bigfive/atom-sublime-select",
   "license": "MIT",
