@@ -50,16 +50,16 @@ module.exports =
       else
         # Find the pixel width of 1 column to caculate the number of columns to select
         columnWidthPx = editorView.pixelPositionForBufferPosition([mouseStart.row,mouseStart.column]).left / mouseStart.column
-        selectedBuffers = parseInt (mouseEndPx[0] - mouseStartPx[0]) / columnWidthPx
+        selectedColumns = Math.round (mouseEndPx[0] - mouseStartPx[0]) / columnWidthPx
 
       for row in [mouseStart.row..mouseEnd.row]
 
         # Define a range for this row from the mouse start to the mouseEnd + selected columns
-        range = [[row, mouseStart.column], [row, mouseStart.column + selectedBuffers]]
+        range = [[row, mouseStart.column], [row, mouseStart.column + selectedColumns]]
 
         # Include a range if zero columns are selected
         # or if the line has text within the selection
-        newRanges.push range if selectedBuffers == 0 or editor.getTextInBufferRange(range).length > 0
+        newRanges.push range if selectedColumns == 0 or editor.getTextInBufferRange(range).length > 0
 
       # Set the selected ranges
       editor.setSelectedBufferRanges newRanges
