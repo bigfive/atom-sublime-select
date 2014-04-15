@@ -13,7 +13,7 @@ module.exports =
 
     editor = editorView.getEditor()
 
-    [altDown, mouseStart, mouseEnd] = []
+    [altDown, mouseStart, mouseEnd, mouseEndPx, mouseStartPx] = []
 
     onKeyDown = (e) ->
       if e.which is 18
@@ -25,36 +25,50 @@ module.exports =
 
     onMouseDown = (e) =>
       if altDown
-        mouseStart = editor.getCursor().selection.getBufferRange().start
+        mouseStart = editor.getCursor().getBufferPosition()
+        mouseStartPx = [e.screenX, e.screenY]
         mouseEnd = mouseStart
+        mouseEndPx = mouseStartPx
 
     onMouseUp = (e) =>
       mouseStart = null
+      mouseStartPx = null
       mouseEnd = null
+      mouseEndPx = null
 
     onMouseMove = (e) =>
       if mouseStart
         mouseEnd = editor.getCursor().getBufferPosition()
+        mouseEndPx = [e.screenX, e.screenY]
         selectBoxAroundCursors()
 
     selectBoxAroundCursors = =>
       newRanges = []
 
-      zeroColumns = mouseStart.column is mouseEnd.column
+      if mouseStart.column is mouseEnd.column
+        selectedBuffers = 0
+      else
+        # Find the pixel width of 1 column to caculate the number of columns to select
+        columnWidthPx = editorView.pixelPositionForBufferPosition([mouseStart.row,mouseStart.column]).left / mouseStart.column
+        selectedBuffers = parseInt (mouseEndPx[0] - mouseStartPx[0]) / columnWidthPx
 
       for row in [mouseStart.row..mouseEnd.row]
-        range = [[row, mouseStart.column], [row, mouseEnd.column]]
+
+        # Define a range for this row from the mouse start to the mouseEnd + selected columns
+        range = [[row, mouseStart.column], [row, mouseStart.column + selectedBuffers]]
 
         # Include a range if zero columns are selected
         # or if the line has text within the selection
-        newRanges.push range if zeroColumns or editor.getTextInBufferRange(range).length > 0
+        newRanges.push range if selectedBuffers == 0 or editor.getTextInBufferRange(range).length > 0
 
+      # Set the selected ranges
       editor.setSelectedBufferRanges newRanges
 
-    @subscribe editorView, 'keydown',      onKeyDown
-    @subscribe editorView, 'keyup',        onKeyUp
-    @subscribe editorView, 'mousedown',    onMouseDown
-    @subscribe editorView, 'mouseup',      onMouseUp
-    @subscribe editorView, 'cursor:moved', onMouseMove
+    # Subscribe to the various things
+    @subscribe editorView, 'keydown',   onKeyDown
+    @subscribe editorView, 'keyup',     onKeyUp
+    @subscribe editorView, 'mousedown', onMouseDown
+    @subscribe editorView, 'mouseup',   onMouseUp
+    @subscribe editorView, 'mousemove', onMouseMove
 
 Subscriber.extend module.exports
