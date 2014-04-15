@@ -62,7 +62,8 @@ module.exports =
         newRanges.push range if selectedColumns == 0 or editor.getTextInBufferRange(range).length > 0
 
       # Set the selected ranges
-      editor.setSelectedBufferRanges newRanges
+      if newRanges.length
+        editor.setSelectedBufferRanges newRanges
 
     # Subscribe to the various things
     @subscribe editorView, 'keydown',   onKeyDown
