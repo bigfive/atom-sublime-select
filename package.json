@@ -1,7 +1,7 @@
 {
   "name": "SublimeSelect",
   "main": "./lib/sublime-select",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Deprecated. Please use 'Sublime Style Column Selection'",
   "activationEvents": [],
   "repository": "https://github.com/bigfive/atom-sublime-select",
