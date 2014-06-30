@@ -16,16 +16,15 @@ module.exports =
     altDown    = false
     mouseStart = null
     mouseEnd   = null
-    monoSizer  = null
+    columnWidth  = null
 
-    calculateMonoSpacedCharacterSize = =>
+    calculateMonoSpacedCharacterWidth = =>
       if scrollView
-        # Create a span with an x in it and measure its width and height
-        # then remove it
+        # Create a span with an x in it and measure its width then remove it
         span = document.createElement 'span'
         span.appendChild document.createTextNode('x')
         scrollView.append span
-        size = [span.offsetWidth, span.offsetHeight]
+        size = span.offsetWidth
         span.remove()
         return size
       null
@@ -40,9 +39,9 @@ module.exports =
 
     onMouseDown = (e) =>
       if altDown
-        monoSizer  = calculateMonoSpacedCharacterSize()
-        mouseStart = editorView.screenPositionFromMouseEvent(e)
-        mouseEnd   = mouseStart
+        columnWidth = calculateMonoSpacedCharacterWidth()
+        mouseStart  = overflowableScreenPositionFromMouseEvent(e)
+        mouseEnd    = mouseStart
         e.preventDefault()
         return false
 
@@ -64,14 +63,12 @@ module.exports =
     # I had to create my own version of editorView.screenPositionFromMouseEvent
     # The editorView one doesnt quite do what I need
     overflowableScreenPositionFromMouseEvent = (e) =>
-      if scrollView and monoSizer
-        editorOffset = scrollView.offset()
-        return {
-          row:    Math.round( (e.pageY - editorOffset.top ) / monoSizer[1] ) + editorView.getFirstVisibleScreenRow(),
-          column: Math.round( (e.pageX - editorOffset.left) / monoSizer[0] )
-        }
-      else
-        return null
+      { pageX, pageY }  = e
+      offset            = editorView.scrollView.offset()
+      editorRelativeTop = pageY - offset.top + editorView.scrollTop()
+      row               = Math.floor editorRelativeTop / editorView.lineHeight
+      column            = Math.round (pageX - offset.left) / columnWidth
+      return {row: row, column: column}
 
     selectBoxAroundCursors = =>
       if mouseStart and mouseEnd
