@@ -10,12 +10,27 @@ module.exports =
     @unsubscribe()
 
   _handleLoad: (editorView) ->
+    editor     = editorView.getEditor()
+    scrollView = editorView.find('.scroll-view')
 
-    editor = editorView.getEditor()
+    altDown    = false
+    mouseStart = null
+    mouseEnd   = null
+    monoSizer  = null
 
-    [altDown, mouseStart, mouseEnd, mouseEndPx, mouseStartPx] = []
+    calculateMonoSpacedCharacterSize = =>
+      if scrollView
+        # Create a span with an x in it and measure its width and height
+        # then remove it
+        span = document.createElement 'span'
+        span.appendChild document.createTextNode('x')
+        scrollView.append span
+        size = [span.offsetWidth, span.offsetHeight]
+        span.remove()
+        return size
+      null
 
-    onKeyDown = (e) ->
+    onKeyDown = (e) =>
       if e.which is 18
         altDown = true
 
@@ -25,51 +40,65 @@ module.exports =
 
     onMouseDown = (e) =>
       if altDown
-        mouseStart = editor.getCursor().getBufferPosition()
-        mouseStartPx = [e.screenX, e.screenY]
-        mouseEnd = mouseStart
-        mouseEndPx = mouseStartPx
+        monoSizer  = calculateMonoSpacedCharacterSize()
+        mouseStart = screenPositionFromMouseEvent(e)
+        mouseEnd   = mouseStart
+        e.preventDefault()
+        return false
 
     onMouseUp = (e) =>
       mouseStart = null
-      mouseStartPx = null
       mouseEnd = null
-      mouseEndPx = null
 
     onMouseMove = (e) =>
       if mouseStart
-        mouseEnd = editor.getCursor().getBufferPosition()
-        mouseEndPx = [e.screenX, e.screenY]
+        mouseEnd = screenPositionFromMouseEvent(e)
         selectBoxAroundCursors()
+        e.preventDefault()
+        return false
+
+    onMouseleave = =>
+      if mouseStart
+        editorView.mouseup()
+
+    screenPositionFromMouseEvent = (e) =>
+      if scrollView and monoSizer
+        editorOffset = scrollView.offset()
+        return {
+          row:    Math.round( (e.pageY - editorOffset.top ) / monoSizer[1] ) + editorView.getFirstVisibleScreenRow(),
+          column: Math.round( (e.pageX - editorOffset.left) / monoSizer[0] )
+        }
+      else
+        return null
 
     selectBoxAroundCursors = =>
-      newRanges = []
+      if mouseStart and mouseEnd
+        newRanges = []
+        selectedColumns = 0
 
-      if mouseStart.column is mouseEnd.column
-        selectedBuffers = 0
-      else
-        # Find the pixel width of 1 column to caculate the number of columns to select
-        columnWidthPx = editorView.pixelPositionForBufferPosition([mouseStart.row,mouseStart.column]).left / mouseStart.column
-        selectedColumns = Math.round (mouseEndPx[0] - mouseStartPx[0]) / columnWidthPx
+        if mouseStart.column != mouseEnd.column
+          selectedColumns = mouseEnd.column - mouseStart.column
 
-      for row in [mouseStart.row..mouseEnd.row]
+        for row in [mouseStart.row..mouseEnd.row]
+          # Define a range for this row from the mouseStart coumn number to
+          # the mouseEnd column number + selected columns
+          range = [[row, mouseStart.column], [row, mouseStart.column + selectedColumns]]
 
-        # Define a range for this row from the mouse start to the mouseEnd + selected columns
-        range = [[row, mouseStart.column], [row, mouseStart.column + selectedColumns]]
+          # Only include a range if zero columns are selected
+          # or if the line has text within the selection
+          if selectedColumns == 0 or editor.getTextInBufferRange(range).length > 0
+            newRanges.push range
 
-        # Include a range if zero columns are selected
-        # or if the line has text within the selection
-        newRanges.push range if selectedColumns == 0 or editor.getTextInBufferRange(range).length > 0
-
-      # Set the selected ranges
-      if newRanges.length
-        editor.setSelectedBufferRanges newRanges
+        # Set the selected ranges
+        if newRanges.length
+          editor.setSelectedBufferRanges newRanges
 
     # Subscribe to the various things
-    @subscribe editorView, 'keydown',   onKeyDown
-    @subscribe editorView, 'keyup',     onKeyUp
-    @subscribe editorView, 'mousedown', onMouseDown
-    @subscribe editorView, 'mouseup',   onMouseUp
-    @subscribe editorView, 'mousemove', onMouseMove
+    @subscribe editorView, 'keydown',    onKeyDown
+    @subscribe editorView, 'keyup',      onKeyUp
+    @subscribe editorView, 'mousedown',  onMouseDown
+    @subscribe editorView, 'mouseup',    onMouseUp
+    @subscribe editorView, 'mousemove',  onMouseMove
+    @subscribe editorView, 'mouseleave', onMouseleave
 
 Subscriber.extend module.exports
