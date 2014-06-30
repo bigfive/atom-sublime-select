@@ -72,25 +72,25 @@ module.exports =
 
     selectBoxAroundCursors = =>
       if mouseStart and mouseEnd
-        newRanges = []
-        selectedColumns = 0
-
-        if mouseStart.column != mouseEnd.column
-          selectedColumns = mouseEnd.column - mouseStart.column
+        allRanges = []
+        rangesWithLength = []
+        selectedColumns = mouseEnd.column - mouseStart.column
 
         for row in [mouseStart.row..mouseEnd.row]
           # Define a range for this row from the mouseStart coumn number to
           # the mouseEnd column number + selected columns
           range = [[row, mouseStart.column], [row, mouseStart.column + selectedColumns]]
 
-          # Only include a range if zero columns are selected
-          # or if the line has text within the selection
-          if selectedColumns == 0 or editor.getTextInBufferRange(range).length > 0
-            newRanges.push range
+          allRanges.push range
+          if editor.getTextInBufferRange(range).length > 0
+            rangesWithLength.push range
 
-        # Set the selected ranges
-        if newRanges.length
-          editor.setSelectedBufferRanges newRanges
+        # If there are rnages with text in them then only select those
+        # Otherwise select all the 0 length ranges
+        if rangesWithLength.length
+          editor.setSelectedBufferRanges rangesWithLength
+        else
+          editor.setSelectedBufferRanges allRanges
 
     # Subscribe to the various things
     @subscribe editorView, 'keydown',    onKeyDown
