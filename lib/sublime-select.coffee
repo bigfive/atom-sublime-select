@@ -67,7 +67,7 @@ module.exports =
       if scrollView and monoSizer
         editorOffset = scrollView.offset()
         return {
-          row:    Math.round( (e.pageY - editorOffset.top ) / monoSizer[1] ) + editorView.getFirstVisibleScreenRow(),
+          row:    Math.ceil( (e.pageY - editorOffset.top ) / monoSizer[1] ) + editorView.getFirstVisibleScreenRow(),
           column: Math.round( (e.pageX - editorOffset.left) / monoSizer[0] )
         }
       else
