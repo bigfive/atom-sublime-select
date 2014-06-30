@@ -41,7 +41,7 @@ module.exports =
     onMouseDown = (e) =>
       if altDown
         monoSizer  = calculateMonoSpacedCharacterSize()
-        mouseStart = screenPositionFromMouseEvent(e)
+        mouseStart = editorView.screenPositionFromMouseEvent(e)
         mouseEnd   = mouseStart
         e.preventDefault()
         return false
@@ -52,7 +52,7 @@ module.exports =
 
     onMouseMove = (e) =>
       if mouseStart
-        mouseEnd = screenPositionFromMouseEvent(e)
+        mouseEnd = overflowableScreenPositionFromMouseEvent(e)
         selectBoxAroundCursors()
         e.preventDefault()
         return false
@@ -61,13 +61,13 @@ module.exports =
       if mouseStart
         editorView.mouseup()
 
-    # I had to create my own version of screenPositionFromMouseEvent
-    # The editorView.screenPositionFromMouseEvent() doesnt quite do what I need
-    screenPositionFromMouseEvent = (e) =>
+    # I had to create my own version of editorView.screenPositionFromMouseEvent
+    # The editorView one doesnt quite do what I need
+    overflowableScreenPositionFromMouseEvent = (e) =>
       if scrollView and monoSizer
         editorOffset = scrollView.offset()
         return {
-          row:    Math.ceil( (e.pageY - editorOffset.top ) / monoSizer[1] ) + editorView.getFirstVisibleScreenRow(),
+          row:    Math.round( (e.pageY - editorOffset.top ) / monoSizer[1] ) + editorView.getFirstVisibleScreenRow(),
           column: Math.round( (e.pageX - editorOffset.left) / monoSizer[0] )
         }
       else
