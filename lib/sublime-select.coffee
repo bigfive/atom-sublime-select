@@ -61,6 +61,8 @@ module.exports =
       if mouseStart
         editorView.mouseup()
 
+    # I had to create my own version of screenPositionFromMouseEvent
+    # The editorView.screenPositionFromMouseEvent() doesnt quite do what I need
     screenPositionFromMouseEvent = (e) =>
       if scrollView and monoSizer
         editorOffset = scrollView.offset()
