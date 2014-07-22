@@ -56,9 +56,10 @@ module.exports =
         e.preventDefault()
         return false
 
-    onMouseleave = =>
-      if mouseStart
-        editorView.mouseup()
+    onMouseleave = (e) =>
+      if altDown
+        e.preventDefault()
+        return false
 
     # I had to create my own version of editorView.screenPositionFromMouseEvent
     # The editorView one doesnt quite do what I need
