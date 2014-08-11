@@ -79,7 +79,7 @@ module.exports =
         for row in [mouseStart.row..mouseEnd.row]
           # Define a range for this row from the mouseStart column number to
           # the mouseEnd column number
-          range = editor.bufferRangeForScreenRange [[row, mouseStart.column], [row, mouseEnd.column]]
+          range = editor.bufferRangeForScreenRange [[row, mouseStart.column-1], [row, mouseEnd.column-1]]
 
           allRanges.push range
           if editor.getTextInBufferRange(range).length > 0
