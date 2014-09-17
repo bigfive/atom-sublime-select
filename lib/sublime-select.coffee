@@ -103,8 +103,6 @@ module.exports =
           editor.setSelectedBufferRanges allRanges
 
     # Subscribe to the various things
-    @subscribe editorView, 'keydown',     onKeyDown
-    @subscribe editorView, 'keyup',       onKeyUp
     @subscribe editorView, 'mousedown',   onMouseDown
     @subscribe editorView, 'mouseup',     onMouseUp
     @subscribe editorView, 'mousemove',   onMouseMove
