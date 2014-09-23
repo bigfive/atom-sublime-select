@@ -57,9 +57,8 @@ module.exports =
           selectBoxAroundCursors()
           e.preventDefault()
           return false
-        else
+        if e.which == 0
           resetState()
-          return true
 
     # Hijack all the mouse events when selecting
     hikackMouseEvent = (e) =>
