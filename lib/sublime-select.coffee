@@ -26,7 +26,6 @@ module.exports =
 
   _handleLoad: (editorView) ->
     editor     = editorView.getEditor()
-    scrollView = editorView.find('.scroll-view')
 
     mouseStart  = null
     mouseEnd    = null
@@ -71,14 +70,12 @@ module.exports =
 
     # Create a span with an x in it and measure its width then remove it
     calculateMonoSpacedCharacterWidth = =>
-      if scrollView
-        span = document.createElement 'span'
-        span.appendChild document.createTextNode('x')
-        scrollView.append span
-        size = span.offsetWidth
-        span.remove()
-        return size
-      null
+      span = document.createElement 'span'
+      span.appendChild document.createTextNode('x')
+      editorView.scrollView.append span
+      size = span.offsetWidth
+      span.remove()
+      return size
 
     # I had to create my own version of editorView.screenPositionFromMouseEvent
     # The editorView one doesnt quite do what I need
