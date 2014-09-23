@@ -1,4 +1,19 @@
 {Subscriber} = require 'emissary'
+os = require 'os'
+
+inputCfg = switch os.platform()
+  when 'darwin'
+    key: 'altKey'
+    mouse: 0
+    middleMouse: true
+  when 'linux'
+    key: 'shiftKey'
+    mouse: 2
+    middleMouse: false
+  else
+    key: 'shiftKey'
+    mouse: 2
+    middleMouse: true
 
 module.exports =
 
@@ -13,7 +28,6 @@ module.exports =
     editor     = editorView.getEditor()
     scrollView = editorView.find('.scroll-view')
 
-    altDown    = false
     mouseStart = null
     mouseEnd   = null
     columnWidth  = null
@@ -29,20 +43,16 @@ module.exports =
         return size
       null
 
-    onKeyDown = (e) =>
-      if e.which is 18
-        altDown = true
-
-    onKeyUp = (e) =>
-      if e.which is 18
-        altDown = false
-
     onMouseDown = (e) =>
-      if altDown
+      if (inputCfg.middleMouse and e.button is 1) or (e.button is inputCfg.mouse and e[inputCfg.key])
         columnWidth = calculateMonoSpacedCharacterWidth()
         mouseStart  = overflowableScreenPositionFromMouseEvent(e)
         mouseEnd    = mouseStart
         e.preventDefault()
+
+    onContextMenu = (e) =>
+      # kill the right click menu when we start selecting
+      if e[inputCfg.key]
         return false
 
     onMouseUp = (e) =>
@@ -57,7 +67,7 @@ module.exports =
         return false
 
     onMouseleave = (e) =>
-      if altDown
+      if e[inputCfg.key]
         e.preventDefault()
         return false
 
@@ -93,11 +103,10 @@ module.exports =
           editor.setSelectedBufferRanges allRanges
 
     # Subscribe to the various things
-    @subscribe editorView, 'keydown',    onKeyDown
-    @subscribe editorView, 'keyup',      onKeyUp
-    @subscribe editorView, 'mousedown',  onMouseDown
-    @subscribe editorView, 'mouseup',    onMouseUp
-    @subscribe editorView, 'mousemove',  onMouseMove
-    @subscribe editorView, 'mouseleave', onMouseleave
+    @subscribe editorView, 'mousedown',   onMouseDown
+    @subscribe editorView, 'mouseup',     onMouseUp
+    @subscribe editorView, 'mousemove',   onMouseMove
+    @subscribe editorView, 'mouseleave',  onMouseleave
+    @subscribe editorView, 'contextmenu', onContextMenu
 
 Subscriber.extend module.exports
