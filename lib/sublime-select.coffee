@@ -38,6 +38,10 @@ module.exports =
       columnWidth = null
 
     onMouseDown = (e) =>
+      if mouseStart
+        e.preventDefault()
+        return false
+
       if (inputCfg.middleMouse and e.button is 1) or (e.button is inputCfg.mouse and e[inputCfg.key])
         resetState()
         columnWidth = calculateMonoSpacedCharacterWidth()
@@ -69,14 +73,15 @@ module.exports =
         e.preventDefault()
         return false
 
-    onFocusOut = (e) =>
-      resetState()
-
-    # kill the right click menu when we start selecting
+    # Kill the right click menu when we are selecting
+    # This shouldn't ever happen as we are hijacking the right mouse click if mouseStart exists
     onContextMenu = (e) =>
       if mouseStart
         e.preventDefault()
         return false
+
+    onFocusOut = (e) =>
+      resetState()
 
     # Create a span with an x in it and measure its width then remove it
     calculateMonoSpacedCharacterWidth = =>
