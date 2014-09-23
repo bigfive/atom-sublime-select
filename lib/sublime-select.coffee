@@ -71,6 +71,12 @@ module.exports =
         e.preventDefault()
         return false
 
+    onFocusOut = (e) =>
+      altDown    = false
+      mouseStart = null
+      mouseEnd   = null
+      columnWidth  = null
+
     # I had to create my own version of editorView.screenPositionFromMouseEvent
     # The editorView one doesnt quite do what I need
     overflowableScreenPositionFromMouseEvent = (e) =>
@@ -108,5 +114,6 @@ module.exports =
     @subscribe editorView, 'mousemove',   onMouseMove
     @subscribe editorView, 'mouseleave',  onMouseleave
     @subscribe editorView, 'contextmenu', onContextMenu
+    @subscribe editorView, 'focusout',    onFocusOut
 
 Subscriber.extend module.exports
