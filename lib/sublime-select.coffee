@@ -4,7 +4,7 @@ os = require 'os'
 inputCfg = switch os.platform()
   when 'darwin'
     key: 'altKey'
-    mouse: 0
+    mouse: 1
     middleMouse: true
   when 'linux'
     key: 'shiftKey'
@@ -42,7 +42,7 @@ module.exports =
         e.preventDefault()
         return false
 
-      if (inputCfg.middleMouse and e.button is 1) or (e.button is inputCfg.mouse and e[inputCfg.key])
+      if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse and e[inputCfg.key])
         resetState()
         columnWidth = calculateMonoSpacedCharacterWidth()
         mouseStart  = overflowableScreenPositionFromMouseEvent(e)
@@ -50,32 +50,19 @@ module.exports =
         e.preventDefault()
         return false
 
-    onMouseUp = (e) =>
-      if mouseStart and (inputCfg.middleMouse and e.button is 1) or (e.button is inputCfg.mouse)
-        resetState()
-        e.preventDefault()
-        return false
-
     onMouseMove = (e) =>
       if mouseStart
-        mouseEnd = overflowableScreenPositionFromMouseEvent(e)
-        selectBoxAroundCursors()
-        e.preventDefault()
-        return false
+        if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse)
+          mouseEnd = overflowableScreenPositionFromMouseEvent(e)
+          selectBoxAroundCursors()
+          e.preventDefault()
+          return false
+        else
+          resetState()
+          return true
 
-    onMouseLeave = (e) =>
-      if mouseStart
-        e.preventDefault()
-        return false
-
-    onMouseEnter = (e) =>
-      if mouseStart
-        e.preventDefault()
-        return false
-
-    # Kill the right click menu when we are selecting
-    # This shouldn't ever happen as we are hijacking the right mouse click if mouseStart exists
-    onContextMenu = (e) =>
+    # Hijack all the mouse events when selecting
+    hikackMouseEvent = (e) =>
       if mouseStart
         e.preventDefault()
         return false
@@ -128,11 +115,11 @@ module.exports =
 
     # Subscribe to the various things
     @subscribe editorView, 'mousedown',   onMouseDown
-    @subscribe editorView, 'mouseup',     onMouseUp
     @subscribe editorView, 'mousemove',   onMouseMove
-    @subscribe editorView, 'mouseleave',  onMouseLeave
-    @subscribe editorView, 'mouseenter',  onMouseEnter
-    @subscribe editorView, 'contextmenu', onContextMenu
+    @subscribe editorView, 'mouseup',     hikackMouseEvent
+    @subscribe editorView, 'mouseleave',  hikackMouseEvent
+    @subscribe editorView, 'mouseenter',  hikackMouseEvent
+    @subscribe editorView, 'contextmenu', hikackMouseEvent
     @subscribe editorView, 'focusout',    onFocusOut
 
 Subscriber.extend module.exports
