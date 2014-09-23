@@ -28,36 +28,29 @@ module.exports =
     editor     = editorView.getEditor()
     scrollView = editorView.find('.scroll-view')
 
-    mouseStart = null
-    mouseEnd   = null
-    columnWidth  = null
+    mouseStart  = null
+    mouseEnd    = null
+    columnWidth = null
 
-    calculateMonoSpacedCharacterWidth = =>
-      if scrollView
-        # Create a span with an x in it and measure its width then remove it
-        span = document.createElement 'span'
-        span.appendChild document.createTextNode('x')
-        scrollView.append span
-        size = span.offsetWidth
-        span.remove()
-        return size
-      null
+    resetState = =>
+      mouseStart  = null
+      mouseEnd    = null
+      columnWidth = null
 
     onMouseDown = (e) =>
       if (inputCfg.middleMouse and e.button is 1) or (e.button is inputCfg.mouse and e[inputCfg.key])
+        resetState()
         columnWidth = calculateMonoSpacedCharacterWidth()
         mouseStart  = overflowableScreenPositionFromMouseEvent(e)
         mouseEnd    = mouseStart
         e.preventDefault()
-
-    onContextMenu = (e) =>
-      # kill the right click menu when we start selecting
-      if e[inputCfg.key]
         return false
 
     onMouseUp = (e) =>
-      mouseStart = null
-      mouseEnd = null
+      if mouseStart and (inputCfg.middleMouse and e.button is 1) or (e.button is inputCfg.mouse)
+        resetState()
+        e.preventDefault()
+        return false
 
     onMouseMove = (e) =>
       if mouseStart
@@ -66,16 +59,35 @@ module.exports =
         e.preventDefault()
         return false
 
-    onMouseleave = (e) =>
-      if e[inputCfg.key]
+    onMouseLeave = (e) =>
+      if mouseStart
+        e.preventDefault()
+        return false
+
+    onMouseEnter = (e) =>
+      if mouseStart
         e.preventDefault()
         return false
 
     onFocusOut = (e) =>
-      altDown    = false
-      mouseStart = null
-      mouseEnd   = null
-      columnWidth  = null
+      resetState()
+
+    # kill the right click menu when we start selecting
+    onContextMenu = (e) =>
+      if mouseStart
+        e.preventDefault()
+        return false
+
+    # Create a span with an x in it and measure its width then remove it
+    calculateMonoSpacedCharacterWidth = =>
+      if scrollView
+        span = document.createElement 'span'
+        span.appendChild document.createTextNode('x')
+        scrollView.append span
+        size = span.offsetWidth
+        span.remove()
+        return size
+      null
 
     # I had to create my own version of editorView.screenPositionFromMouseEvent
     # The editorView one doesnt quite do what I need
@@ -87,6 +99,7 @@ module.exports =
       column            = Math.round (pageX - offset.left) / columnWidth
       return {row: row, column: column}
 
+    # Do the actual selecting
     selectBoxAroundCursors = =>
       if mouseStart and mouseEnd
         allRanges = []
@@ -112,7 +125,8 @@ module.exports =
     @subscribe editorView, 'mousedown',   onMouseDown
     @subscribe editorView, 'mouseup',     onMouseUp
     @subscribe editorView, 'mousemove',   onMouseMove
-    @subscribe editorView, 'mouseleave',  onMouseleave
+    @subscribe editorView, 'mouseleave',  onMouseLeave
+    @subscribe editorView, 'mouseenter',  onMouseEnter
     @subscribe editorView, 'contextmenu', onContextMenu
     @subscribe editorView, 'focusout',    onFocusOut
 
