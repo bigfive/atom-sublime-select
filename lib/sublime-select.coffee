@@ -1,4 +1,3 @@
-{Subscriber} = require 'emissary'
 os = require 'os'
 
 inputCfg = switch os.platform()
@@ -18,23 +17,23 @@ inputCfg = switch os.platform()
 module.exports =
 
   activate: (state) ->
-    atom.workspaceView.eachEditorView (editorView) =>
-      @_handleLoad editorView
+    atom.workspace.observeTextEditors (editor) =>
+      @_handleLoad editor
 
   deactivate: ->
     @unsubscribe()
 
-  _handleLoad: (editorView) ->
-    editor     = editorView.getEditor()
+  _handleLoad: (editor) ->
+    editorBuffer = editor.displayBuffer
+    editorElement = atom.views.getView editor
+    editorComponent = editorElement.component
 
     mouseStart  = null
     mouseEnd    = null
-    columnWidth = null
 
     resetState = =>
       mouseStart  = null
       mouseEnd    = null
-      columnWidth = null
 
     onMouseDown = (e) =>
       if mouseStart
@@ -43,8 +42,7 @@ module.exports =
 
       if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse and e[inputCfg.key])
         resetState()
-        columnWidth = calculateMonoSpacedCharacterWidth()
-        mouseStart  = overflowableScreenPositionFromMouseEvent(e)
+        mouseStart  = _screenPositionForMouseEvent(e)
         mouseEnd    = mouseStart
         e.preventDefault()
         return false
@@ -52,7 +50,7 @@ module.exports =
     onMouseMove = (e) =>
       if mouseStart
         if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse)
-          mouseEnd = overflowableScreenPositionFromMouseEvent(e)
+          mouseEnd = _screenPositionForMouseEvent(e)
           selectBoxAroundCursors()
           e.preventDefault()
           return false
@@ -65,26 +63,21 @@ module.exports =
         e.preventDefault()
         return false
 
-    onFocusOut = (e) =>
+    onBlur = (e) =>
       resetState()
 
-    # Create a span with an x in it and measure its width then remove it
-    calculateMonoSpacedCharacterWidth = =>
-      span = document.createElement 'span'
-      span.appendChild document.createTextNode('x')
-      editorView.scrollView.append span
-      size = span.offsetWidth
-      span.remove()
-      return size
-
-    # I had to create my own version of editorView.screenPositionFromMouseEvent
-    # The editorView one doesnt quite do what I need
-    overflowableScreenPositionFromMouseEvent = (e) =>
-      { pageX, pageY }  = e
-      offset            = editorView.scrollView.offset()
-      editorRelativeTop = pageY - offset.top + editorView.scrollTop()
-      row               = Math.floor editorRelativeTop / editorView.lineHeight
-      column            = Math.round (pageX - offset.left) / columnWidth
+    # I had to create my own version of editorComponent.screenPositionFromMouseEvent
+    # The editorBuffer one doesnt quite do what I need
+    _screenPositionForMouseEvent = (e) =>
+      pixelPosition    = editorComponent.pixelPositionForMouseEvent(e)
+      targetTop        = pixelPosition.top
+      targetLeft       = pixelPosition.left
+      defaultCharWidth = editorBuffer.defaultCharWidth
+      row              = Math.floor(targetTop / editorBuffer.getLineHeightInPixels())
+      targetLeft       = Infinity if row > editorBuffer.getLastRow()
+      row              = Math.min(row, editorBuffer.getLastRow())
+      row              = Math.max(0, row)
+      column           = Math.round (targetLeft) / defaultCharWidth
       return {row: row, column: column}
 
     # Do the actual selecting
@@ -110,12 +103,10 @@ module.exports =
           editor.setSelectedBufferRanges allRanges
 
     # Subscribe to the various things
-    @subscribe editorView, 'mousedown',   onMouseDown
-    @subscribe editorView, 'mousemove',   onMouseMove
-    @subscribe editorView, 'mouseup',     hikackMouseEvent
-    @subscribe editorView, 'mouseleave',  hikackMouseEvent
-    @subscribe editorView, 'mouseenter',  hikackMouseEvent
-    @subscribe editorView, 'contextmenu', hikackMouseEvent
-    @subscribe editorView, 'focusout',    onFocusOut
-
-Subscriber.extend module.exports
+    editorElement.onmousedown   = onMouseDown
+    editorElement.onmousemove   = onMouseMove
+    editorElement.onmouseup     = hikackMouseEvent
+    editorElement.onmouseleave  = hikackMouseEvent
+    editorElement.onmouseenter  = hikackMouseEvent
+    editorElement.oncontextmenu = hikackMouseEvent
+    editorElement.onblur        = onBlur
