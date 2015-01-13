@@ -18,7 +18,7 @@ inputCfg = switch os.platform()
 module.exports =
 
   activate: (state) ->
-    @subscribe atom.workspaceView.eachEditorView (editorView) =>
+    atom.workspaceView.eachEditorView (editorView) =>
       @_handleLoad editorView
 
   deactivate: ->
@@ -106,7 +106,7 @@ module.exports =
         # Otherwise select all the 0 length ranges
         if rangesWithLength.length
           editor.setSelectedBufferRanges rangesWithLength
-        else
+        else if allRanges.length
           editor.setSelectedBufferRanges allRanges
 
     # Subscribe to the various things
