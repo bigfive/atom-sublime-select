@@ -9,5 +9,7 @@
   "engines": {
     "atom": ">0.165.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "emissary": "1.x"
+  }
 }
