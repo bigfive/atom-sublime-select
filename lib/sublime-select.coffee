@@ -1,6 +1,10 @@
 os = require 'os'
 
 inputCfg = switch os.platform()
+  when 'win32'
+    key: 'altKey'
+    mouse: 1
+    middleMouse: true
   when 'darwin'
     key: 'altKey'
     mouse: 1
