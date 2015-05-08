@@ -19,6 +19,13 @@ inputCfg = switch os.platform()
     middleMouse: true
 
 module.exports =
+  config:
+    mouseButtonTrigger:
+      description: "Code of the mouse button that will trigger column selection
+        (e.g. left mouse button is 1, middle mouse button is 2, right mouse button is 3, etc).
+        If empty, the default for your plattform (#{os.platform()}) will be used (#{inputCfg.mouse})."
+      type: 'integer'
+      default: inputCfg.mouse
 
   activate: (state) ->
     atom.workspace.observeTextEditors (editor) =>
@@ -44,7 +51,7 @@ module.exports =
         e.preventDefault()
         return false
 
-      if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse and e[inputCfg.key])
+      if (inputCfg.middleMouse and e.which is 2) or (isTriggerButton(e.which) and e[inputCfg.key])
         resetState()
         mouseStart  = _screenPositionForMouseEvent(e)
         mouseEnd    = mouseStart
@@ -53,7 +60,7 @@ module.exports =
 
     onMouseMove = (e) =>
       if mouseStart
-        if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse)
+        if (inputCfg.middleMouse and e.which is 2) or isTriggerButton(e.which)
           mouseEnd = _screenPositionForMouseEvent(e)
           selectBoxAroundCursors()
           e.preventDefault()
@@ -105,6 +112,10 @@ module.exports =
           editor.setSelectedBufferRanges rangesWithLength
         else if allRanges.length
           editor.setSelectedBufferRanges allRanges
+
+    # Compare this button with the current setting
+    isTriggerButton = (button) =>
+      button is atom.config.get 'Sublime-Style-Column-Selection.mouseButtonTrigger'
 
     # Subscribe to the various things
     editorElement.onmousedown   = onMouseDown
