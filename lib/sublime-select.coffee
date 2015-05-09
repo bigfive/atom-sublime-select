@@ -62,7 +62,7 @@ module.exports =
           resetState()
 
     # Hijack all the mouse events when selecting
-    hikackMouseEvent = (e) =>
+    hijackMouseEvent = (e) =>
       if mouseStart
         e.preventDefault()
         return false
@@ -109,8 +109,8 @@ module.exports =
     # Subscribe to the various things
     editorElement.onmousedown   = onMouseDown
     editorElement.onmousemove   = onMouseMove
-    editorElement.onmouseup     = hikackMouseEvent
-    editorElement.onmouseleave  = hikackMouseEvent
-    editorElement.onmouseenter  = hikackMouseEvent
-    editorElement.oncontextmenu = hikackMouseEvent
+    editorElement.onmouseup     = hijackMouseEvent
+    editorElement.onmouseleave  = hijackMouseEvent
+    editorElement.onmouseenter  = hijackMouseEvent
+    editorElement.oncontextmenu = hijackMouseEvent
     editorElement.onblur        = onBlur
