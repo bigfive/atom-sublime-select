@@ -35,11 +35,11 @@ module.exports =
     mouseStart  = null
     mouseEnd    = null
 
-    resetState = =>
+    resetState = ->
       mouseStart  = null
       mouseEnd    = null
 
-    onMouseDown = (e) =>
+    onMouseDown = (e) ->
       if mouseStart
         e.preventDefault()
         return false
@@ -51,7 +51,7 @@ module.exports =
         e.preventDefault()
         return false
 
-    onMouseMove = (e) =>
+    onMouseMove = (e) ->
       if mouseStart
         if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse)
           mouseEnd = _screenPositionForMouseEvent(e)
@@ -62,17 +62,17 @@ module.exports =
           resetState()
 
     # Hijack all the mouse events when selecting
-    hijackMouseEvent = (e) =>
+    hijackMouseEvent = (e) ->
       if mouseStart
         e.preventDefault()
         return false
 
-    onBlur = (e) =>
+    onBlur = (e) ->
       resetState()
 
     # I had to create my own version of editorComponent.screenPositionFromMouseEvent
     # The editorBuffer one doesnt quite do what I need
-    _screenPositionForMouseEvent = (e) =>
+    _screenPositionForMouseEvent = (e) ->
       pixelPosition    = editorComponent.pixelPositionForMouseEvent(e)
       targetTop        = pixelPosition.top
       targetLeft       = pixelPosition.left
@@ -85,7 +85,7 @@ module.exports =
       return {row: row, column: column}
 
     # Do the actual selecting
-    selectBoxAroundCursors = =>
+    selectBoxAroundCursors = ->
       if mouseStart and mouseEnd
         allRanges = []
         rangesWithLength = []
