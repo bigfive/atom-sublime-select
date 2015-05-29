@@ -2,21 +2,25 @@ os = require 'os'
 
 inputCfg = switch os.platform()
   when 'win32'
-    key: 'altKey'
-    mouse: 1
-    middleMouse: true
+    selectKey: 'altKey'
+    mainMouseNum: 1
+    middleMouseNum: 2
+    enableMiddleMouse: true
   when 'darwin'
-    key: 'altKey'
-    mouse: 1
-    middleMouse: true
+    selectKey: 'altKey'
+    mainMouseNum: 1
+    middleMouseNum: 2
+    enableMiddleMouse: true
   when 'linux'
-    key: 'shiftKey'
-    mouse: 2
-    middleMouse: false
+    selectKey: 'shiftKey'
+    mainMouseNum: 2
+    middleMouseNum: 2
+    enableMiddleMouse: false
   else
-    key: 'shiftKey'
-    mouse: 2
-    middleMouse: true
+    selectKey: 'shiftKey'
+    mainMouseNum: 2
+    middleMouseNum: 2
+    enableMiddleMouse: false
 
 module.exports =
 
@@ -32,43 +36,48 @@ module.exports =
     editorElement = atom.views.getView editor
     editorComponent = editorElement.component
 
-    mouseStart  = null
-    mouseEnd    = null
+    mouseStartPos  = null
+    mouseEndPos    = null
 
     resetState = ->
-      mouseStart  = null
-      mouseEnd    = null
+      mouseStartPos  = null
+      mouseEndPos    = null
 
     onMouseDown = (e) ->
-      if mouseStart
+      if mouseStartPos
         e.preventDefault()
         return false
 
-      if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse and e[inputCfg.key])
+      if _middleMouseDown(e) or _mainMouseAndKeyDown(e)
         resetState()
-        mouseStart  = _screenPositionForMouseEvent(e)
-        mouseEnd    = mouseStart
+        mouseStartPos = _screenPositionForMouseEvent(e)
+        mouseEndPos   = mouseStartPos
         e.preventDefault()
         return false
 
     onMouseMove = (e) ->
-      if mouseStart
-        if (inputCfg.middleMouse and e.which is 2) or (e.which is inputCfg.mouse)
-          mouseEnd = _screenPositionForMouseEvent(e)
-          selectBoxAroundCursors()
-          e.preventDefault()
+      if mouseStartPos
+        e.preventDefault()
+        if _middleMouseDown(e) or _mainMouseDown(e)
+          mouseEndPos = _screenPositionForMouseEvent(e)
+          _selectBoxAroundCursors()
           return false
         if e.which == 0
           resetState()
 
-    # Hijack all the mouse events when selecting
+    # Hijack all the mouse events while selecting
     hijackMouseEvent = (e) ->
-      if mouseStart
+      if mouseStartPos
         e.preventDefault()
         return false
 
     onBlur = (e) ->
       resetState()
+
+    onRangeChange = (newVal) ->
+      if mouseStartPos and !newVal.selection.isSingleScreenLine()
+        newVal.selection.destroy()
+        _selectBoxAroundCursors()
 
     # I had to create my own version of editorComponent.screenPositionFromMouseEvent
     # The editorBuffer one doesnt quite do what I need
@@ -84,16 +93,29 @@ module.exports =
       column           = Math.round (targetLeft) / defaultCharWidth
       return {row: row, column: column}
 
+    # methods for checking mouse/key state against config
+    _middleMouseDown = (e) ->
+      inputCfg.enableMiddleMouse and e.which is inputCfg.middleMouseNum
+
+    _mainMouseDown = (e) ->
+      e.which is inputCfg.mainMouseNum
+
+    _keyDown = (e) ->
+      e[inputCfg.selectKey]
+
+    _mainMouseAndKeyDown = (e) ->
+      _mainMouseDown(e) and e[inputCfg.selectKey]
+
     # Do the actual selecting
-    selectBoxAroundCursors = ->
-      if mouseStart and mouseEnd
+    _selectBoxAroundCursors = ->
+      if mouseStartPos and mouseEndPos
         allRanges = []
         rangesWithLength = []
 
-        for row in [mouseStart.row..mouseEnd.row]
-          # Define a range for this row from the mouseStart column number to
-          # the mouseEnd column number
-          range = editor.bufferRangeForScreenRange [[row, mouseStart.column], [row, mouseEnd.column]]
+        for row in [mouseStartPos.row..mouseEndPos.row]
+          # Define a range for this row from the mouseStartPos column number to
+          # the mouseEndPos column number
+          range = [[row, mouseStartPos.column], [row, mouseEndPos.column]]
 
           allRanges.push range
           if editor.getTextInBufferRange(range).length > 0
@@ -102,11 +124,12 @@ module.exports =
         # If there are ranges with text in them then only select those
         # Otherwise select all the 0 length ranges
         if rangesWithLength.length
-          editor.setSelectedBufferRanges rangesWithLength
+          editor.setSelectedScreenRanges rangesWithLength
         else if allRanges.length
-          editor.setSelectedBufferRanges allRanges
+          editor.setSelectedScreenRanges allRanges
 
     # Subscribe to the various things
+    editor.onDidChangeSelectionRange onRangeChange
     editorElement.onmousedown   = onMouseDown
     editorElement.onmousemove   = onMouseMove
     editorElement.onmouseup     = hijackMouseEvent
