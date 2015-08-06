@@ -13,7 +13,7 @@ inputCfg = switch os.platform()
     enableMiddleMouse: true
   when 'linux'
     selectKey: 'shiftKey'
-    mainMouseNum: 2
+    mainMouseNum: 1
     middleMouseNum: 2
     enableMiddleMouse: false
   else
