@@ -82,6 +82,9 @@ module.exports =
     # I had to create my own version of editorComponent.screenPositionFromMouseEvent
     # The editorBuffer one doesnt quite do what I need
     _screenPositionForMouseEvent = (e) ->
+      if editorComponent is null
+        editorComponent = atom.views.getView(editor).component
+        
       pixelPosition    = editorComponent.pixelPositionForMouseEvent(e)
       targetTop        = pixelPosition.top
       targetLeft       = pixelPosition.left
