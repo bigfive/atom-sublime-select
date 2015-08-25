@@ -3,21 +3,25 @@ os = require 'os'
 inputCfg = switch os.platform()
   when 'win32'
     selectKey: 'altKey'
+    selectIdentifier: 'Alt'
     mainMouseNum: 1
     middleMouseNum: 2
     enableMiddleMouse: true
   when 'darwin'
     selectKey: 'altKey'
+    selectIdentifier: 'Alt'
     mainMouseNum: 1
     middleMouseNum: 2
     enableMiddleMouse: true
   when 'linux'
     selectKey: 'shiftKey'
+    selectIdentifier: 'Shift'
     mainMouseNum: 2
     middleMouseNum: 2
     enableMiddleMouse: false
   else
     selectKey: 'shiftKey'
+    selectIdentifier: 'Shift'
     mainMouseNum: 2
     middleMouseNum: 2
     enableMiddleMouse: false
@@ -65,6 +69,15 @@ module.exports =
         if e.which == 0
           resetState()
 
+    onKeyDown = (e) ->
+      if e['keyIdentifier'] == inputCfg.selectIdentifier and e['type'] == 'keydown'
+        editorElement.shadowRoot.querySelector(
+          '.lines').style.cursor = 'crosshair'
+
+    onKeyUp = (e) ->
+      if e['keyIdentifier'] == inputCfg.selectIdentifier and e['type'] == 'keyup'
+        editorElement.shadowRoot.querySelector('.lines').style.cursor = ''
+
     # Hijack all the mouse events while selecting
     hijackMouseEvent = (e) ->
       if mouseStartPos
@@ -100,9 +113,6 @@ module.exports =
     _mainMouseDown = (e) ->
       e.which is inputCfg.mainMouseNum
 
-    _keyDown = (e) ->
-      e[inputCfg.selectKey]
-
     _mainMouseAndKeyDown = (e) ->
       _mainMouseDown(e) and e[inputCfg.selectKey]
 
@@ -132,6 +142,8 @@ module.exports =
     editor.onDidChangeSelectionRange onRangeChange
     editorElement.onmousedown   = onMouseDown
     editorElement.onmousemove   = onMouseMove
+    editorElement.onkeydown     = onKeyDown
+    editorElement.onkeyup       = onKeyUp
     editorElement.onmouseup     = hijackMouseEvent
     editorElement.onmouseleave  = hijackMouseEvent
     editorElement.onmouseenter  = hijackMouseEvent
