@@ -5,25 +5,34 @@ packageName = "Sublime-Style-Column-Selection"
 defaultCfg = switch os.platform()
   when 'win32'
     selectKey: 'altKey'
+    selectKeyName: 'Alt'
     mouseNum: 1
-    mouseName: "left"
+    mouseName: "Left"
   when 'darwin'
     selectKey: 'altKey'
+    selectKeyName: 'Alt'
     mouseNum: 1
-    mouseName: "left"
+    mouseName: "Left"
   when 'linux'
     selectKey: 'shiftKey'
-    mouseNum: 2
-    mouseName: "middle"
+    selectKeyName: 'Shift'
+    mouseNum: 1
+    mouseName: "Left"
   else
     selectKey: 'shiftKey'
-    mouseNum: 2
-    mouseName: "middle"
+    selectKeyName: 'Shift'
+    mouseNum: 1
+    mouseName: "Left"
 
 mouseNumMap =
-  left: 1,
-  middle: 2,
-  right: 3
+  Left: 1,
+  Middle: 2,
+  Right: 3
+
+selectKeyMap =
+  Shift: 'shiftKey',
+  Alt: 'altKey',
+  Ctrl: 'ctrlKey'
 
 inputCfg = defaultCfg
 
@@ -32,17 +41,17 @@ module.exports =
     mouseButtonTrigger:
       title: "Mouse Button"
       description: "The mouse button that will trigger column selection.
-        If empty, the default for your plattform (#{os.platform()}) will be used (#{defaultCfg.mouseNum})."
+        If empty, the default will be used #{defaultCfg.mouseName} mouse button."
       type: 'string'
-      enum: ['left', 'middle', 'right']
+      enum: ['Left', 'Middle', 'Right']
       default: defaultCfg.mouseName
     selectKeyTrigger:
       ttile: "Select Key"
       description: "The key that will trigger column selection.
-        If empty, the default for your plattform (#{os.platform()}) will be used (#{defaultCfg.selectKey})."
+        If empty, the default will be used #{defaultCfg.selectKeyName} key."
       type: 'string'
-      enum: ['altKey', 'shiftKey', 'ctrlKey']
-      default: defaultCfg.selectKey
+      enum: ['Alt', 'Shift', 'Ctrl']
+      default: defaultCfg.selectKeyName
 
   activate: (state) ->
     atom.config.observe "#{packageName}.mouseButtonTrigger", (newValue) =>
@@ -50,7 +59,8 @@ module.exports =
       inputCfg.mouseNum = mouseNumMap[newValue]
 
     atom.config.observe "#{packageName}.selectKeyTrigger", (newValue) =>
-      inputCfg.selectKey = newValue
+      inputCfg.selectKeyName = newValue
+      inputCfg.selectKey = selectKeyMap[newValue]
 
     atom.workspace.observeTextEditors (editor) =>
       @_handleLoad editor
