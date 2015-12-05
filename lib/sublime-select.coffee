@@ -1,30 +1,57 @@
 os = require 'os'
 
-inputCfg = switch os.platform()
+packageName = "Sublime-Style-Column-Selection"
+
+defaultCfg = switch os.platform()
   when 'win32'
     selectKey: 'altKey'
-    mainMouseNum: 1
-    middleMouseNum: 2
-    enableMiddleMouse: true
+    mouseNum: 1
+    mouseName: "left"
   when 'darwin'
     selectKey: 'altKey'
-    mainMouseNum: 1
-    middleMouseNum: 2
-    enableMiddleMouse: true
+    mouseNum: 1
+    mouseName: "left"
   when 'linux'
     selectKey: 'shiftKey'
-    mainMouseNum: 2
-    middleMouseNum: 2
-    enableMiddleMouse: false
+    mouseNum: 2
+    mouseName: "middle"
   else
     selectKey: 'shiftKey'
-    mainMouseNum: 2
-    middleMouseNum: 2
-    enableMiddleMouse: false
+    mouseNum: 2
+    mouseName: "middle"
+
+mouseNumMap =
+  left: 1,
+  middle: 2,
+  right: 3
+
+inputCfg = defaultCfg
 
 module.exports =
+  config:
+    mouseButtonTrigger:
+      title: "Mouse Button"
+      description: "The mouse button that will trigger column selection.
+        If empty, the default for your plattform (#{os.platform()}) will be used (#{defaultCfg.mouseNum})."
+      type: 'string'
+      enum: ['left', 'middle', 'right']
+      default: defaultCfg.mouseName
+    selectKeyTrigger:
+      ttile: "Select Key"
+      description: "The key that will trigger column selection.
+        If empty, the default for your plattform (#{os.platform()}) will be used (#{defaultCfg.selectKey})."
+      type: 'string'
+      enum: ['altKey', 'shiftKey', 'ctrlKey']
+      default: defaultCfg.selectKey
 
   activate: (state) ->
+    atom.config.observe "#{packageName}.mouseButtonTrigger", (newValue) =>
+      inputCfg.mouseName = newValue
+      inputCfg.mouseNum = mouseNumMap[newValue]
+
+    atom.config.observe "#{packageName}.selectKeyTrigger", (newValue) =>
+      inputCfg.selectKey = newValue
+
     atom.workspace.observeTextEditors (editor) =>
       @_handleLoad editor
 
@@ -48,7 +75,7 @@ module.exports =
         e.preventDefault()
         return false
 
-      if _middleMouseDown(e) or _mainMouseAndKeyDown(e)
+      if _mainMouseAndKeyDown(e)
         resetState()
         mouseStartPos = _screenPositionForMouseEvent(e)
         mouseEndPos   = mouseStartPos
@@ -58,7 +85,7 @@ module.exports =
     onMouseMove = (e) ->
       if mouseStartPos
         e.preventDefault()
-        if _middleMouseDown(e) or _mainMouseDown(e)
+        if _mainMouseDown(e)
           mouseEndPos = _screenPositionForMouseEvent(e)
           _selectBoxAroundCursors()
           return false
@@ -94,11 +121,8 @@ module.exports =
       return {row: row, column: column}
 
     # methods for checking mouse/key state against config
-    _middleMouseDown = (e) ->
-      inputCfg.enableMiddleMouse and e.which is inputCfg.middleMouseNum
-
     _mainMouseDown = (e) ->
-      e.which is inputCfg.mainMouseNum
+      e.which is inputCfg.mouseNum
 
     _keyDown = (e) ->
       e[inputCfg.selectKey]
