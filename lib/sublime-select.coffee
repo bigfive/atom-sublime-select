@@ -1,34 +1,68 @@
 os = require 'os'
 
-inputCfg = switch os.platform()
+packageName = "Sublime-Style-Column-Selection"
+
+defaultCfg = switch os.platform()
   when 'win32'
     selectKey: 'altKey'
-    selectIdentifier: 'Alt'
-    mainMouseNum: 1
-    middleMouseNum: 2
-    enableMiddleMouse: true
+    selectKeyName: 'Alt'
+    mouseNum: 1
+    mouseName: "Left"
   when 'darwin'
     selectKey: 'altKey'
-    selectIdentifier: 'Alt'
-    mainMouseNum: 1
-    middleMouseNum: 2
-    enableMiddleMouse: true
+    selectKeyName: 'Alt'
+    mouseNum: 1
+    mouseName: "Left"
   when 'linux'
     selectKey: 'shiftKey'
-    selectIdentifier: 'Shift'
-    mainMouseNum: 2
-    middleMouseNum: 2
-    enableMiddleMouse: false
+    selectKeyName: 'Shift'
+    mouseNum: 1
+    mouseName: "Left"
   else
     selectKey: 'shiftKey'
-    selectIdentifier: 'Shift'
-    mainMouseNum: 2
-    middleMouseNum: 2
-    enableMiddleMouse: false
+    selectKeyName: 'Shift'
+    mouseNum: 1
+    mouseName: "Left"
+
+mouseNumMap =
+  Left: 1,
+  Middle: 2,
+  Right: 3
+
+selectKeyMap =
+  Shift: 'shiftKey',
+  Alt: 'altKey',
+  Ctrl: 'ctrlKey'
+
+inputCfg = defaultCfg
+# >>>>>>> bigfive/master
 
 module.exports =
+  config:
+    mouseButtonTrigger:
+      title: "Mouse Button"
+      description: "The mouse button that will trigger column selection.
+        If empty, the default will be used #{defaultCfg.mouseName} mouse button."
+      type: 'string'
+      enum: ['Left', 'Middle', 'Right']
+      default: defaultCfg.mouseName
+    selectKeyTrigger:
+      ttile: "Select Key"
+      description: "The key that will trigger column selection.
+        If empty, the default will be used #{defaultCfg.selectKeyName} key."
+      type: 'string'
+      enum: ['Alt', 'Shift', 'Ctrl']
+      default: defaultCfg.selectKeyName
 
   activate: (state) ->
+    atom.config.observe "#{packageName}.mouseButtonTrigger", (newValue) =>
+      inputCfg.mouseName = newValue
+      inputCfg.mouseNum = mouseNumMap[newValue]
+
+    atom.config.observe "#{packageName}.selectKeyTrigger", (newValue) =>
+      inputCfg.selectKeyName = newValue
+      inputCfg.selectKey = selectKeyMap[newValue]
+
     atom.workspace.observeTextEditors (editor) =>
       @_handleLoad editor
 
@@ -52,7 +86,7 @@ module.exports =
         e.preventDefault()
         return false
 
-      if _middleMouseDown(e) or _mainMouseAndKeyDown(e)
+      if _mainMouseAndKeyDown(e)
         resetState()
         mouseStartPos = _screenPositionForMouseEvent(e)
         mouseEndPos   = mouseStartPos
@@ -62,7 +96,7 @@ module.exports =
     onMouseMove = (e) ->
       if mouseStartPos
         e.preventDefault()
-        if _middleMouseDown(e) or _mainMouseDown(e)
+        if _mainMouseDown(e)
           mouseEndPos = _screenPositionForMouseEvent(e)
           _selectBoxAroundCursors()
           return false
@@ -70,12 +104,12 @@ module.exports =
           resetState()
 
     onKeyDown = (e) ->
-      if e['keyIdentifier'] == inputCfg.selectIdentifier and e['type'] == 'keydown'
+      if e['keyIdentifier'] == inputCfg.selectKeyName and e['type'] == 'keydown'
         editorElement.shadowRoot.querySelector(
           '.lines').style.cursor = 'crosshair'
 
     onKeyUp = (e) ->
-      if e['keyIdentifier'] == inputCfg.selectIdentifier and e['type'] == 'keyup'
+      if e['keyIdentifier'] == inputCfg.selectKeyName and e['type'] == 'keyup'
         editorElement.shadowRoot.querySelector('.lines').style.cursor = ''
 
     # Hijack all the mouse events while selecting
@@ -95,6 +129,9 @@ module.exports =
     # I had to create my own version of editorComponent.screenPositionFromMouseEvent
     # The editorBuffer one doesnt quite do what I need
     _screenPositionForMouseEvent = (e) ->
+      if editorComponent is null
+        editorComponent = atom.views.getView(editor).component
+
       pixelPosition    = editorComponent.pixelPositionForMouseEvent(e)
       targetTop        = pixelPosition.top
       targetLeft       = pixelPosition.left
@@ -107,11 +144,8 @@ module.exports =
       return {row: row, column: column}
 
     # methods for checking mouse/key state against config
-    _middleMouseDown = (e) ->
-      inputCfg.enableMiddleMouse and e.which is inputCfg.middleMouseNum
-
     _mainMouseDown = (e) ->
-      e.which is inputCfg.mainMouseNum
+      e.which is inputCfg.mouseNum
 
     _mainMouseAndKeyDown = (e) ->
       _mainMouseDown(e) and e[inputCfg.selectKey]
