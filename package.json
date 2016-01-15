@@ -1,7 +1,7 @@
 {
   "name": "Sublime-Style-Column-Selection",
   "main": "./lib/sublime-select",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Enable Sublime style 'Column Selection'. Just hold 'alt' while you select, or select using your middle mouse button. Also similar to Texmate's 'Multiple Carets', or BBEdit's 'Block Select'",
   "repository": "https://github.com/bigfive/atom-sublime-select",
   "license": "MIT",
