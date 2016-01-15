@@ -35,7 +35,6 @@ selectKeyMap =
   Ctrl: 'ctrlKey'
 
 inputCfg = defaultCfg
-# >>>>>>> bigfive/master
 
 module.exports =
   config:
