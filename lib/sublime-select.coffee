@@ -78,5 +78,6 @@ module.exports =
   switch_editor_handler: =>
     @editor_handler?.unsubscribe()
     active_editor = atom.workspace.getActiveTextEditor()
-    @editor_handler = new SublimeSelectEditorHandler(active_editor, inputCfg)
-    @editor_handler.subscribe()
+    if active_editor
+      @editor_handler = new SublimeSelectEditorHandler(active_editor, inputCfg)
+      @editor_handler.subscribe()
