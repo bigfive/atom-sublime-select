@@ -5,35 +5,36 @@ SublimeSelectEditorHandler = require './editor-handler.coffee'
 
 defaultCfg = switch os.platform()
   when 'win32'
-    selectKey: 'altKey'
+    selectKey:     'altKey'
     selectKeyName: 'Alt'
-    mouseNum: 1
-    mouseName: "Left"
+    mouseNum:      1
+    mouseName:     "Left"
   when 'darwin'
-    selectKey: 'altKey'
+    selectKey:     'altKey'
     selectKeyName: 'Alt'
-    mouseNum: 1
-    mouseName: "Left"
+    mouseNum:      1
+    mouseName:     "Left"
   when 'linux'
-    selectKey: 'shiftKey'
+    selectKey:     'shiftKey'
     selectKeyName: 'Shift'
-    mouseNum: 1
-    mouseName: "Left"
+    mouseNum:      1
+    mouseName:     "Left"
   else
-    selectKey: 'shiftKey'
+    selectKey:     'shiftKey'
     selectKeyName: 'Shift'
-    mouseNum: 1
-    mouseName: "Left"
+    mouseNum:      1
+    mouseName:     "Left"
 
 mouseNumMap =
-  Left: 1,
+  Left:   1,
   Middle: 2,
-  Right: 3
+  Right:  3
 
 selectKeyMap =
   Shift: 'shiftKey',
-  Alt: 'altKey',
-  Ctrl: 'ctrlKey'
+  Alt:   'altKey',
+  Ctrl:  'ctrlKey',
+  None:  null
 
 inputCfg = defaultCfg
 
@@ -45,14 +46,15 @@ module.exports =
       description: "The mouse button that will trigger column selection.
         If empty, the default will be used #{defaultCfg.mouseName} mouse button."
       type: 'string'
-      enum: ['Left', 'Middle', 'Right']
+      enum: (key for key, value of mouseNumMap)
       default: defaultCfg.mouseName
+
     selectKeyTrigger:
       ttile: "Select Key"
       description: "The key that will trigger column selection.
         If empty, the default will be used #{defaultCfg.selectKeyName} key."
       type: 'string'
-      enum: ['Alt', 'Shift', 'Ctrl']
+      enum: (key for key, value of selectKeyMap)
       default: defaultCfg.selectKeyName
 
   activate: (state) ->
