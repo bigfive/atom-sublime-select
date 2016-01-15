@@ -100,7 +100,10 @@ module.exports =
       e.which is @inputCfg.mouseNum
 
     _mainMouseAndKeyDown: (e) ->
-      @_mainMouseDown(e) and e[@inputCfg.selectKey]
+      if @inputCfg.selectKey
+        @_mainMouseDown(e) and e[@inputCfg.selectKey]
+      else
+        @_mainMouseDown(e)
 
     # Do the actual selecting
     _selectBoxAroundCursors: ->
