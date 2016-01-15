@@ -67,13 +67,13 @@ module.exports =
       inputCfg.selectKeyName = newValue
       inputCfg.selectKey = selectKeyMap[newValue]
 
-    @observers.push atom.workspace.observeActivePane @switch_editor_handler
-    @observers.push atom.workspace.onDidAddPane      @switch_editor_handler
-    @observers.push atom.workspace.onDidDestroyPane  @switch_editor_handler
+    @observers.push atom.workspace.onDidChangeActivePaneItem @switch_editor_handler
+    @observers.push atom.workspace.onDidAddPane              @switch_editor_handler
+    @observers.push atom.workspace.onDidDestroyPane          @switch_editor_handler
 
   deactivate: ->
-    observer.dispose() for observer in @observers
     @editor_handler.unsubscribe()
+    observer.dispose() for observer in @observers
 
   switch_editor_handler: =>
     @editor_handler?.unsubscribe()

@@ -10,8 +10,6 @@ module.exports =
       @selection_observer = @editor.onDidChangeSelectionRange @onRangeChange
       @editorElement.addEventListener 'mousedown',   @onMouseDown
       @editorElement.addEventListener 'mousemove',   @onMouseMove
-      @editorElement.addEventListener 'keydown',     @onKeyDown
-      @editorElement.addEventListener 'keyup',       @onKeyUp
       @editorElement.addEventListener 'mouseup',     @onMouseEventToHijack
       @editorElement.addEventListener 'mouseleave',  @onMouseEventToHijack
       @editorElement.addEventListener 'mouseenter',  @onMouseEventToHijack
@@ -23,8 +21,6 @@ module.exports =
       @selection_observer.dispose()
       @editorElement.removeEventListener 'mousedown',   @onMouseDown
       @editorElement.removeEventListener 'mousemove',   @onMouseMove
-      @editorElement.removeEventListener 'keydown',     @onKeyDown
-      @editorElement.removeEventListener 'keyup',       @onKeyUp
       @editorElement.removeEventListener 'mouseup',     @onMouseEventToHijack
       @editorElement.removeEventListener 'mouseleave',  @onMouseEventToHijack
       @editorElement.removeEventListener 'mouseenter',  @onMouseEventToHijack
@@ -56,14 +52,6 @@ module.exports =
           return false
         if e.which == 0
           @_resetState()
-
-    onKeyDown: (e) =>
-      if e['keyIdentifier'] == @inputCfg.selectKeyName and e['type'] == 'keydown'
-        @editorElement.style.cursor = 'crosshair'
-
-    onKeyUp: (e) =>
-      if e['keyIdentifier'] == @inputCfg.selectKeyName and e['type'] == 'keyup'
-        @editorElement.style.cursor = ''
 
     # Hijack all the mouse events while selecting
     onMouseEventToHijack: (e) =>
