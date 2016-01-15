@@ -102,15 +102,6 @@ module.exports =
         if e.which == 0
           resetState()
 
-    onKeyDown = (e) ->
-      if e['keyIdentifier'] == inputCfg.selectKeyName and e['type'] == 'keydown'
-        editorElement.shadowRoot.querySelector(
-          '.lines').style.cursor = 'crosshair'
-
-    onKeyUp = (e) ->
-      if e['keyIdentifier'] == inputCfg.selectKeyName and e['type'] == 'keyup'
-        editorElement.shadowRoot.querySelector('.lines').style.cursor = ''
-
     # Hijack all the mouse events while selecting
     hijackMouseEvent = (e) ->
       if mouseStartPos
@@ -130,7 +121,7 @@ module.exports =
     _screenPositionForMouseEvent = (e) ->
       if editorComponent is null
         editorComponent = atom.views.getView(editor).component
-
+        
       pixelPosition    = editorComponent.pixelPositionForMouseEvent(e)
       targetTop        = pixelPosition.top
       targetLeft       = pixelPosition.left
@@ -145,6 +136,9 @@ module.exports =
     # methods for checking mouse/key state against config
     _mainMouseDown = (e) ->
       e.which is inputCfg.mouseNum
+
+    _keyDown = (e) ->
+      e[inputCfg.selectKey]
 
     _mainMouseAndKeyDown = (e) ->
       _mainMouseDown(e) and e[inputCfg.selectKey]
@@ -175,8 +169,6 @@ module.exports =
     editor.onDidChangeSelectionRange onRangeChange
     editorElement.onmousedown   = onMouseDown
     editorElement.onmousemove   = onMouseMove
-    editorElement.onkeydown     = onKeyDown
-    editorElement.onkeyup       = onKeyUp
     editorElement.onmouseup     = hijackMouseEvent
     editorElement.onmouseleave  = hijackMouseEvent
     editorElement.onmouseenter  = hijackMouseEvent
