@@ -1,30 +1,67 @@
 os = require 'os'
 
-inputCfg = switch os.platform()
+packageName = "Sublime-Style-Column-Selection"
+
+defaultCfg = switch os.platform()
   when 'win32'
     selectKey: 'altKey'
-    mainMouseNum: 1
-    middleMouseNum: 2
-    enableMiddleMouse: true
+    selectKeyName: 'Alt'
+    mouseNum: 1
+    mouseName: "Left"
   when 'darwin'
     selectKey: 'altKey'
-    mainMouseNum: 1
-    middleMouseNum: 2
-    enableMiddleMouse: true
+    selectKeyName: 'Alt'
+    mouseNum: 1
+    mouseName: "Left"
   when 'linux'
     selectKey: 'shiftKey'
-    mainMouseNum: 2
-    middleMouseNum: 2
-    enableMiddleMouse: false
+    selectKeyName: 'Shift'
+    mouseNum: 1
+    mouseName: "Left"
   else
     selectKey: 'shiftKey'
-    mainMouseNum: 2
-    middleMouseNum: 2
-    enableMiddleMouse: false
+    selectKeyName: 'Shift'
+    mouseNum: 1
+    mouseName: "Left"
+
+mouseNumMap =
+  Left: 1,
+  Middle: 2,
+  Right: 3
+
+selectKeyMap =
+  Shift: 'shiftKey',
+  Alt: 'altKey',
+  Ctrl: 'ctrlKey'
+
+inputCfg = defaultCfg
 
 module.exports =
+  config:
+    mouseButtonTrigger:
+      title: "Mouse Button"
+      description: "The mouse button that will trigger column selection.
+        If empty, the default will be used #{defaultCfg.mouseName} mouse button."
+      type: 'string'
+      enum: ['Left', 'Middle', 'Right']
+      default: defaultCfg.mouseName
+    selectKeyTrigger:
+      ttile: "Select Key"
+      description: "The key that will trigger column selection.
+        If empty, the default will be used #{defaultCfg.selectKeyName} key."
+      type: 'string'
+      enum: ['Alt', 'Shift', 'Ctrl']
+      default: defaultCfg.selectKeyName
 
   activate: (state) ->
+    atom.config.observe "#{packageName}.mouseButtonTrigger", (newValue) =>
+      inputCfg.mouseName = newValue
+      inputCfg.mouseNum = mouseNumMap[newValue]
+
+    atom.config.observe "#{packageName}.selectKeyTrigger", (newValue) =>
+      inputCfg.selectKeyName = newValue
+      inputCfg.selectKey = selectKeyMap[newValue]
+
     atom.workspace.observeTextEditors (editor) =>
       @_handleLoad editor
 
@@ -48,7 +85,7 @@ module.exports =
         e.preventDefault()
         return false
 
-      if _middleMouseDown(e) or _mainMouseAndKeyDown(e)
+      if _mainMouseAndKeyDown(e)
         resetState()
         mouseStartPos = _screenPositionForMouseEvent(e)
         mouseEndPos   = mouseStartPos
@@ -58,7 +95,7 @@ module.exports =
     onMouseMove = (e) ->
       if mouseStartPos
         e.preventDefault()
-        if _middleMouseDown(e) or _mainMouseDown(e)
+        if _mainMouseDown(e)
           mouseEndPos = _screenPositionForMouseEvent(e)
           _selectBoxAroundCursors()
           return false
@@ -94,11 +131,8 @@ module.exports =
       return {row: row, column: column}
 
     # methods for checking mouse/key state against config
-    _middleMouseDown = (e) ->
-      inputCfg.enableMiddleMouse and e.which is inputCfg.middleMouseNum
-
     _mainMouseDown = (e) ->
-      e.which is inputCfg.mainMouseNum
+      e.which is inputCfg.mouseNum
 
     _keyDown = (e) ->
       e[inputCfg.selectKey]
