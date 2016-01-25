@@ -2,7 +2,7 @@
 
 Enable Sublime style 'Column Selection', allowing you to drag across lines to select a block of text with carets on each line.
 
-Also similar to Texmate's 'Multiple Carets', or BBEdit's 'Block Select'
+Also similar to Textmate's 'Multiple Carets', or BBEdit's 'Block Select'
 
 ![](https://raw.github.com/bigfive/atom-sublime-select/master/screenshot.png)
 
@@ -30,3 +30,7 @@ The modifier key and mouse button can both be configured from the package's sett
 - Alt/Option
 - Ctrl
 - None
+
+To use middle mouse selection working since version 1.4.0 please use the following settings.
+
+![](https://cloud.githubusercontent.com/assets/633193/12469581/e829bcd0-c027-11e5-8104-901fc0ff4a73.png)
