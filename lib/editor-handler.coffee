@@ -108,21 +108,14 @@ module.exports =
     # Do the actual selecting
     _selectBoxAroundCursors: ->
       if @mouseStartPos and @mouseEndPos
-        allRanges = []
-        rangesWithLength = []
+        ranges = []
 
         for row in [@mouseStartPos.row..@mouseEndPos.row]
-          # Define a range for this row from the @mouseStartPos column number to
-          # the @mouseEndPos column number
-          range = [[row, @mouseStartPos.column], [row, @mouseEndPos.column]]
+          @mouseEndPos.column = 0 if @mouseEndPos.column < 0
+          rowLength = @editor.lineTextForScreenRow(row).length
+          if rowLength > @mouseStartPos.column or rowLength > @mouseEndPos.column
+            range = [[row, @mouseStartPos.column], [row, @mouseEndPos.column]]
+            ranges.push range
 
-          allRanges.push range
-          if @editor.getTextInBufferRange(range).length > 0
-            rangesWithLength.push range
-
-        # If there are ranges with text in them then only select those
-        # Otherwise select all the 0 length ranges
-        if rangesWithLength.length
-          @editor.setSelectedScreenRanges rangesWithLength
-        else if allRanges.length
-          @editor.setSelectedScreenRanges allRanges
+        if ranges.length
+          @editor.setSelectedScreenRanges ranges
