@@ -1,3 +1,5 @@
+{Point} = require 'atom'
+
 module.exports =
   class SublimeSelectEditorHandler
     constructor: (editor, inputCfg) ->
@@ -48,7 +50,9 @@ module.exports =
         e.preventDefault()
         if @_mainMouseDown(e)
           @mouseEndPos = @_screenPositionForMouseEvent(e)
+          return if @mouseEndPos.isEqual @mouseEndPosPrev
           @_selectBoxAroundCursors()
+          @mouseEndPosPrev = @mouseEndPos
           return false
         if e.which == 0
           @_resetState()
@@ -93,7 +97,7 @@ module.exports =
       row              = Math.min(row, @editorBuffer.getLastRow())
       row              = Math.max(0, row)
       column           = Math.round (targetLeft) / defaultCharWidth
-      return {row: row, column: column}
+      new Point(row, column)
 
     # methods for checking mouse/key state against config
     _mainMouseDown: (e) ->
