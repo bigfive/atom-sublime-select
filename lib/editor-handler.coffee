@@ -118,4 +118,5 @@ module.exports =
             ranges.push range
 
         if ranges.length
-          @editor.setSelectedScreenRanges ranges
+          isReversed = @mouseEndPos.column < @mouseStartPos.column
+          @editor.setSelectedScreenRanges ranges, {reversed: isReversed}
