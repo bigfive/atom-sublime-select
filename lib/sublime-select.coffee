@@ -50,7 +50,7 @@ module.exports =
       default: defaultCfg.mouseName
 
     selectKeyTrigger:
-      ttile: "Select Key"
+      title: "Select Key"
       description: "The key that will trigger column selection.
         If empty, the default will be used #{defaultCfg.selectKeyName} key."
       type: 'string'
