@@ -74,8 +74,10 @@ module.exports =
     @observers.push atom.workspace.onDidDestroyPane          @switch_editor_handler
 
   deactivate: ->
-    @editor_handler.unsubscribe()
+    @editor_handler?.unsubscribe()
     observer.dispose() for observer in @observers
+    @observers = null
+    @editor_handler = null
 
   switch_editor_handler: =>
     @editor_handler?.unsubscribe()
