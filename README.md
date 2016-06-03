@@ -1,15 +1,35 @@
 # Sublime Style Column Selection
 
-Enable Sublime style 'Column Selection'.
+Enable Sublime style 'Column Selection', allowing you to drag across lines to select a block of text with carets on each line.
 
-Also similar to Texmate's 'Multiple Carets', or BBEdit's 'Block Select'
+Also similar to Textmate's 'Multiple Carets', or BBEdit's 'Block Select'
 
 ![](https://raw.github.com/bigfive/atom-sublime-select/master/screenshot.png)
 
+## Usage
+Hold the modifier key then click and drag with the configured mouse button across multiple lines. Dragging vertically places carets on each line at that column; dragging horizontally as well selects the text on each line.
 
-### Settings
+Default key combinations are:
 
-Our settings panel allows you to choose which mouse and key combination you want to use to enable column selection.
+|Platform |Modifier Key |Mouse Button |
+|---------|-------------|-------------|
+|Windows  |Alt          |Left         |
+|OS X     |Option       |Left         |
+|Linux    |Shift        |Left         |
+
+## Settings
+The modifier key and mouse button can both be configured from the package's settings page. Available options:
+
+### Mouse Button
+- Left
+- Middle
+- Right
+
+### Key Trigger
+- Shift
+- Alt/Option
+- Ctrl
+- None
 
 To use middle mouse selection working since version 1.4.0 please use the following settings.
 
