@@ -34,7 +34,10 @@ selectKeyMap =
   Shift: 'shiftKey',
   Alt:   'altKey',
   Ctrl:  'ctrlKey',
-  None:  null
+
+selectKeyMap.Cmd = 'metaKey' if os.platform() == 'darwin'
+
+selectKeyMap.None = null
 
 inputCfg = defaultCfg
 
