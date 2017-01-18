@@ -80,7 +80,7 @@ module.exports =
       @mouseEndPos   = null
 
     _setup_vars: ->
-      @editorBuffer ?= @editor.displayBuffer
+
       @editorElement ?= atom.views.getView @editor
       @editorComponent ?= @editorElement.component
 
@@ -91,10 +91,10 @@ module.exports =
       pixelPosition    = @editorComponent.pixelPositionForMouseEvent(e)
       targetTop        = pixelPosition.top
       targetLeft       = pixelPosition.left
-      defaultCharWidth = @editorBuffer.defaultCharWidth
-      row              = Math.floor(targetTop / @editorBuffer.getLineHeightInPixels())
-      targetLeft       = Infinity if row > @editor.buffer.getLastRow()
-      row              = Math.min(row, @editor.buffer.getLastRow())
+      defaultCharWidth = @editor.getDefaultCharWidth()
+      row              = Math.floor(targetTop / @editor.getLineHeightInPixels())
+      targetLeft       = Infinity if row > @editor.getLastBufferRow()
+      row              = Math.min(row, @editor.getLastBufferRow())
       row              = Math.max(0, row)
       column           = Math.round (targetLeft) / defaultCharWidth
       new Point(row, column)
