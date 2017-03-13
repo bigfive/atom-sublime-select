@@ -107,18 +107,27 @@ module.exports =
       else
         @_mainMouseDown(e)
 
+    _numCharsInScreenRange: (screenRange) ->
+      bufferRange = @editor.bufferRangeForScreenRange(screenRange)
+      contentsOfRange = @editor.getTextInBufferRange(bufferRange)
+      contentsOfRange.length
+
     # Do the actual selecting
     _selectBoxAroundCursors: ->
       if @mouseStartPos and @mouseEndPos
+        emptyRanges = []
         ranges = []
 
         for row in [@mouseStartPos.row..@mouseEndPos.row]
           @mouseEndPos.column = 0 if @mouseEndPos.column < 0
-          rowLength = @editor.lineTextForScreenRow(row).length
-          if rowLength > @mouseStartPos.column or rowLength > @mouseEndPos.column
-            range = [[row, @mouseStartPos.column], [row, @mouseEndPos.column]]
+          range = [[row, @mouseStartPos.column], [row, @mouseEndPos.column]]
+          numChars = @_numCharsInScreenRange(range)
+          if numChars == 0
+            emptyRanges.push range
+          else
             ranges.push range
 
-        if ranges.length
+        finalRanges = if ranges.length then ranges else emptyRanges
+        if finalRanges.length
           isReversed = @mouseEndPos.column < @mouseStartPos.column
-          @editor.setSelectedScreenRanges ranges, {reversed: isReversed}
+          @editor.setSelectedScreenRanges finalRanges, {reversed: isReversed}
