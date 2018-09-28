@@ -75,6 +75,7 @@ module.exports =
     @observers.push atom.workspace.onDidChangeActivePaneItem @switch_editor_handler
     @observers.push atom.workspace.onDidAddPane              @switch_editor_handler
     @observers.push atom.workspace.onDidDestroyPane          @switch_editor_handler
+    @switch_editor_handler()
 
   deactivate: ->
     @editor_handler?.unsubscribe()
