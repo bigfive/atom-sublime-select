@@ -91,8 +91,8 @@ module.exports =
       targetLeft       = pixelPosition.left
       defaultCharWidth = @editor.getDefaultCharWidth()
       row              = Math.floor(targetTop / @editor.getLineHeightInPixels())
-      targetLeft       = Infinity if row > @editor.getLastBufferRow()
-      row              = Math.min(row, @editor.getLastBufferRow())
+      targetLeft       = Infinity if row > @editor.getLastScreenRow()
+      row              = Math.min(row, @editor.getLastScreenRow())
       row              = Math.max(0, row)
       column           = Math.round (targetLeft) / defaultCharWidth
       new Point(row, column)
