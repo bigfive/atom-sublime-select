@@ -47,9 +47,9 @@ module.exports =
     cursorToCrosshair:
       title: "Change Cursor to Crosshair"
       description: "The mouse cursor will change to crosshair during column selection.
-        IF empty, the default will be used \"true\"."
+        IF empty, the default will be used \"false\"."
       type:'boolean'
-      default: true
+      default: false
 
     mouseButtonTrigger:
       title: "Mouse Button"
