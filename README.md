@@ -40,5 +40,5 @@ You can require both a certain key & modifier, or trigger on either one.
 Optionally change cursor to crosshair when selecting.
 
 ### Change Cursor to Crosshair
-- true (default)
-- false
+- true
+- false (default)
