@@ -38,8 +38,11 @@ module.exports =
         e.preventDefault()
         return false
 
-      if @_mainMouseAndKeyDown(e)
+      if @_mainMouseAndOrKeyDown(e)
         @_resetState()
+        if @inputCfg.cursorToCrosshair
+          @editorElement.shadowRoot.querySelector(
+            '.lines').style.cursor = 'crosshair'
         @mouseStartPos = @_screenPositionForMouseEvent(e)
         @mouseEndPos   = @mouseStartPos
         e.preventDefault()
@@ -48,7 +51,7 @@ module.exports =
     onMouseMove: (e) =>
       if @mouseStartPos
         e.preventDefault()
-        if @_mainMouseDown(e)
+        if @_mainMouseAndOrKeyDown(e)
           @mouseEndPos = @_screenPositionForMouseEvent(e)
           return if @mouseEndPos.isEqual @mouseEndPosPrev
           @_selectBoxAroundCursors()
@@ -76,6 +79,9 @@ module.exports =
     # -------
 
     _resetState: ->
+      if @inputCfg.cursorToCrosshair
+        @editorElement?.shadowRoot.querySelector(
+          '.lines').style.cursor = ''
       @mouseStartPos = null
       @mouseEndPos   = null
 
@@ -101,8 +107,10 @@ module.exports =
     _mainMouseDown: (e) ->
       e.which is @inputCfg.mouseNum
 
-    _mainMouseAndKeyDown: (e) ->
-      if @inputCfg.selectKey
+    _mainMouseAndOrKeyDown: (e) ->
+      if @inputCfg.selectKey && (@inputCfg.mouseKeyLogicOperator == "Or")
+        @_mainMouseDown(e) or e[@inputCfg.selectKey]
+      else if @inputCfg.selectKey
         @_mainMouseDown(e) and e[@inputCfg.selectKey]
       else
         @_mainMouseDown(e)

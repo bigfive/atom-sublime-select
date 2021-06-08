@@ -44,6 +44,13 @@ inputCfg = defaultCfg
 module.exports =
 
   config:
+    cursorToCrosshair:
+      title: "Change Cursor to Crosshair"
+      description: "The mouse cursor will change to crosshair during column selection.
+        IF empty, the default will be used \"false\"."
+      type:'boolean'
+      default: false
+
     mouseButtonTrigger:
       title: "Mouse Button"
       description: "The mouse button that will trigger column selection.
@@ -51,6 +58,14 @@ module.exports =
       type: 'string'
       enum: (key for key, value of mouseNumMap)
       default: defaultCfg.mouseName
+
+    mouseKeyLogicOperator:
+      title: "Logic Operator"
+      description: "Should BOTH/EITHER \"Mouse Button\" And/Or \"Key\" trigger column selection?
+        If empty or \"Select Key\" is set to empty or none, the default will be used \"And\"."
+      type: 'string',
+      enum: ['And','Or']
+      default: 'And'
 
     selectKeyTrigger:
       title: "Select Key"
@@ -64,9 +79,15 @@ module.exports =
     @observers = []
     @editor_handler = null
 
+    @observers.push atom.config.observe "#{packageName}.cursorToCrosshair", (newValue) =>
+      inputCfg.cursorToCrosshair = newValue
+
     @observers.push atom.config.observe "#{packageName}.mouseButtonTrigger", (newValue) =>
       inputCfg.mouseName = newValue
       inputCfg.mouseNum = mouseNumMap[newValue]
+
+    @observers.push atom.config.observe "#{packageName}.mouseKeyLogicOperator", (newValue) =>
+      inputCfg.mouseKeyLogicOperator = newValue
 
     @observers.push atom.config.observe "#{packageName}.selectKeyTrigger", (newValue) =>
       inputCfg.selectKeyName = newValue

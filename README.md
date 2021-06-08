@@ -21,16 +21,24 @@ Default key combinations are:
 The modifier key and mouse button can both be configured from the package's settings page. Available options:
 
 ### Mouse Button
-- Left
+- Left (default)
 - Middle
 - Right
 
-### Key Trigger
-- Shift
-- Alt/Option
+### Key Trigger (default selected based on platform)
+- Shift (default on linux)
+- Alt/Option (default on win/mac)
 - Ctrl
 - None
 
-To use middle mouse selection working since version 1.4.0 please use the following settings.
+You can require both a certain key & modifier, or trigger on either one.
 
-![](https://cloud.githubusercontent.com/assets/633193/12469581/e829bcd0-c027-11e5-8104-901fc0ff4a73.png)
+### Logic Operator
+- And (default)
+- Or
+
+Optionally change cursor to crosshair when selecting.
+
+### Change Cursor to Crosshair
+- true
+- false (default)
